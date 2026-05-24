@@ -1,0 +1,81 @@
+@page "/todo"
+@rendermode InteractiveServer
+
+@* Munazza - 247263 *@
+
+<div class="container mt-4">
+    <h3>To-Do List</h3>
+    <hr />
+
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Add new task..."
+               @bind="newTask" @bind:event="oninput" @onkeydown="keyPressed" />
+        <button class="btn btn-warning" @onclick="addTask">Add</button>
+    </div>
+
+    @if (tasks.Count == 0)
+    {
+        <p class="text-muted">No tasks yet.</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var t in tasks)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <input type="checkbox" @bind="t.Done" class="me-2" />
+                        <span class="@(t.Done ? "text-decoration-line-through text-muted" : "")">@t.Name</span>
+                    </div>
+                    <button class="btn btn-sm btn-danger" @onclick="() => deleteTask(t)">Delete</button>
+                </li>
+            }
+        </ul>
+
+        <div class="mt-3">
+            <button class="btn btn-secondary me-2" @onclick="clearAll">Clear All</button>
+            <button class="btn btn-outline-secondary" @onclick="clearDone">Clear Completed</button>
+        </div>
+    }
+</div>
+
+@code {
+    string newTask = "";
+    List<TaskItem> tasks = new List<TaskItem>();
+
+    void addTask()
+    {
+        if (!string.IsNullOrWhiteSpace(newTask))
+        {
+            tasks.Add(new TaskItem { Name = newTask });
+            newTask = "";
+        }
+    }
+
+    void deleteTask(TaskItem t)
+    {
+        tasks.Remove(t);
+    }
+
+    void clearAll()
+    {
+        tasks.Clear();
+    }
+
+    void clearDone()
+    {
+        tasks.RemoveAll(t => t.Done);
+    }
+
+    void keyPressed(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            addTask();
+    }
+
+    class TaskItem
+    {
+        public string Name { get; set; } = "";
+        public bool Done { get; set; } = false;
+    }
+}
